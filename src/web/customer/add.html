@@ -33,8 +33,28 @@
     <script type="module">
         import config from '../config.js';
 
-        document.getElementById('customer-form').addEventListener('submit', function(e) {
+        document.getElementById('customer-form').addEventListener('submit', function (e) {
             e.preventDefault();
+
+            // フォームから入力値を取得
+            const companyName = document.getElementById('companyName').value;
+            const industry = document.getElementById('industry').value;
+            const contact = document.getElementById('contact').value;
+            const location = document.getElementById('location').value;
+
+            // 確認ダイアログに表示するメッセージを作成
+            const confirmMessage = `以下の内容で登録しますか？\n\n` +
+                `会社名: ${companyName}\n` +
+                `業種: ${industry}\n` +
+                `連絡先: ${contact}\n` +
+                `所在地: ${location}`;
+
+            // ユーザーが「キャンセル」を押したらここで処理を終了する（確認画面機能）
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            // 「OK」を押した場合は通常通りサーバーへ送信
             const formData = new FormData(this);
             fetch(config.apiUrl + '/add-customer', {
                 method: 'POST',
@@ -43,21 +63,15 @@
                 },
                 body: new URLSearchParams([...formData])
             }).then(response => response.json())
-              .then(data => {
-                if(data.success) {
-                    alert('顧客情報が正常に保存されました。');
-                    // フォームをリセット
-                    document.getElementById('customer-form').reset();
-                } else {
-                    alert('保存に失敗しました。');
-                }
-              })
-              .catch(error => console.error('Error:', error));
+                .then(data => {
+                    if (data.success) {
+                        alert('顧客情報が正常に保存されました。');
+                        // フォームをリセット
+                        document.getElementById('customer-form').reset();
+                    } else {
+                        alert('保存に失敗しました。');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         });
     </script>
-    <!-- BootstrapのJavaScriptの読み込み -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-</body>
-</html>
