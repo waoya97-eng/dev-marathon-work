@@ -1,0 +1,8 @@
+{
+  "name": "dev-marathon-root",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix src/node run dev",
+    "start": "npm --prefix src/node start"
+  }
+}

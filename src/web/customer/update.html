@@ -3,16 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>案件情報入力</title>
+    <title>顧客情報編集</title>
     <!-- Bootstrap CSSの読み込み -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <!-- ここにHTMLを書く -->
+        <h2 class="mb-4">顧客情報を編集してください</h2>
+        <form id="customer-form">
+            <div class="form-group">
+                <label for="companyName">会社名:</label>
+                <input type="text" class="form-control" id="companyName" name="companyName" required>
+            </div>
+            <div class="form-group">
+                <label for="industry">業種:</label>
+                <input type="text" class="form-control" id="industry" name="industry" required>
+            </div>
+            <div class="form-group">
+                <label for="contact">連絡先:</label>
+                <input type="text" class="form-control" id="contact" name="contact" required>
+            </div>
+            <div class="form-group">
+                <label for="location">所在地:</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+            </div>
+            <button type="submit" class="btn btn-primary">更新</button>
+            <a id="cancelBtn" href="/customer/list.html" class="btn btn-secondary ml-2">キャンセル</a>
+        </form>
     </div>
     <script type="module">
-        <!-- ここにJSを書く -->
+        import config from '../config.js';
+
+        // URLのパラメータから id を取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+
+        if (id) {
+            // キャンセルボタンの戻り先を詳細画面に設定
+            document.getElementById('cancelBtn').href = `/customer/detail.html?id=${id}`;
+
+            // 現在の顧客情報を取得してフォームに入力
+            fetch(`${config.apiUrl}/customers/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('ネットワークエラー');
+                    return response.json();
+                })
+                .then(customer => {
+                    if (customer) {
+                        document.getElementById('companyName').value = customer.company_name || '';
+                        document.getElementById('industry').value = customer.industry || '';
+                        document.getElementById('contact').value = customer.contact || '';
+                        document.getElementById('location').value = customer.location || '';
+                    } else {
+                        alert('該当する顧客データが見つかりません。');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+
+            // フォーム送信時の処理
+            document.getElementById('customer-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                
+                fetch(`${config.apiUrl}/customers/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams([...formData])
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        alert('顧客情報が正常に更新されました。');
+                        window.location.href = `/customer/detail.html?id=${id}`;
+                    } else {
+                        alert('更新に失敗しました。');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('更新処理中にエラーが発生しました。');
+                });
+            });
+        } else {
+            alert('顧客IDが指定されていません。');
+            window.location.href = '/customer/list.html';
+        }
     </script>
     <!-- BootstrapのJavaScriptの読み込み -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
