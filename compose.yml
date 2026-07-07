@@ -22,6 +22,8 @@ services:
     working_dir: /app
     command: npm run dev
     tty: true # 開発時のみ有効
+    env_file:
+      - .env
 
   db:
     container_name: postgres

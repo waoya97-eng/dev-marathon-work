@@ -4,6 +4,28 @@ const { Pool } = require("pg");
 const path = require("path");
 const fs = require("fs");
 
+// プロジェクトルートの .env ファイルを手動で読み込む
+const envPath = path.join(__dirname, "../../.env");
+if (fs.existsSync(envPath)) {
+  const envConfig = fs.readFileSync(envPath, "utf8");
+  envConfig.split("\n").forEach((line) => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith("#")) {
+      const delimiterIdx = trimmed.indexOf("=");
+      if (delimiterIdx > 0) {
+        const key = trimmed.substring(0, delimiterIdx).trim();
+        let val = trimmed.substring(delimiterIdx + 1).trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.substring(1, val.length - 1);
+        }
+        if (!process.env[key]) {
+          process.env[key] = val;
+        }
+      }
+    }
+  });
+}
+
 const app = express();
 const port = 5955;
 
