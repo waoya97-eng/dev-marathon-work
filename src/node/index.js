@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require('cors'); // 重複しないように上に1つだけにまとめました
 const { Pool } = require("pg");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const port = 5955;
@@ -12,11 +14,11 @@ app.use(express.json());
 
 // PostgreSQLへの接続設定（hostをdbに変更済み）
 const pool = new Pool({
-  user: "user_5955", 
-  host: "db",
-  database: "crm_5955", 
-  password: "pass_5955", 
-  port: 5432,
+  user: process.env.POSTGRES_USER || "user_5955", 
+  host: process.env.POSTGRES_HOST || "db",
+  database: process.env.POSTGRES_DB || "crm_5955", 
+  password: process.env.POSTGRES_PASSWORD || "pass_5955", 
+  port: process.env.POSTGRES_PORT || 5432,
 });
 
 app.listen(port, () => {
@@ -96,6 +98,46 @@ app.put("/customers/:id", async (req, res) => {
     console.error(err);
     res.json({ success: false, error: err.message });
   }
+});
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return next();
+  }
+
+  const reqPath = req.path;
+  const parts = reqPath.split('/').filter(Boolean);
+
+  const firstPart = parts[0];
+  if (firstPart === 'customers' || firstPart === 'add-customer') {
+    return next();
+  }
+
+  const searchPaths = [
+    path.join(__dirname, '../web', reqPath),
+  ];
+
+  if (parts.length > 1) {
+    searchPaths.push(path.join(__dirname, '../web', parts.slice(1).join('/')));
+  }
+
+  const finalSearchPaths = [];
+  for (const p of searchPaths) {
+    finalSearchPaths.push(p);
+    finalSearchPaths.push(path.join(p, 'index.html'));
+  }
+
+  for (const filePath of finalSearchPaths) {
+    try {
+      if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        return res.sendFile(filePath);
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }
+
+  next();
 });
 
 app.use(express.static("public"));

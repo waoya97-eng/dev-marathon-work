@@ -17,6 +17,7 @@ services:
       - "5955:5955"
     volumes:
       - ./src/node:/app
+      - ./src/web:/web
       - ./work:/work
     working_dir: /app
     command: npm run dev
