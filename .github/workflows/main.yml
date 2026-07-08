@@ -1,13 +1,13 @@
 name: Production CI/CD
 
-# 1. mainブランチにpushされたら起動する
+# mainブランチにpushされたら起動する
 on:
   push:
     branches:
       - main
 
 jobs:
-  # 2. Staging環境でのテスト（デプロイ）
+  # Staging環境でのテスト
   staging-test:
     runs-on: ubuntu-latest
     steps:
@@ -20,18 +20,17 @@ jobs:
           SSH_KEY: ${{ secrets.DEV_SSH_KEY }}
       - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh.outputs.SERVER }} "bash /app/na_kondo/deploy.sh na_kondo"
 
-  # 3. Production環境へのデプロイ
+  # Production環境へのデプロイ
   production-deploy:
-    needs: staging-test # staging-testが成功した場合のみ実行されます
+    needs: staging-test
     runs-on: ubuntu-latest
     steps:
       - id: ssh-prod
         uses: invi5H/ssh-action@v1
         with:
-          # 🔑 認証エラーを回避するため、実績のある「DEV_...」のシークレットをそのまま使い回します
           SSH_HOST: ${{ secrets.DEV_SSH_HOST }}
           SSH_PORT: ${{ secrets.DEV_SSH_PORT }}
           SSH_USER: ${{ secrets.DEV_SSH_USER }}
           SSH_KEY:  ${{ secrets.DEV_SSH_KEY }}
-      # 🚀 命令を送り込む先だけを、本番環境のディレクトリ（dev-marathon-work）に変更します
-      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /home/na_kondo/dev-marathon-work/deploy.sh na_kondo"
+      # 🛠️ develop.ymlと「全く同じパス」に修正しました！
+      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /app/na_kondo/deploy.sh na_kondo"
