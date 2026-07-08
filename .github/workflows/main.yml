@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  # Staging環境でのテスト
+  # Staging環境でのテスト（deploy.shを実行）
   staging-test:
     runs-on: ubuntu-latest
     steps:
@@ -18,7 +18,8 @@ jobs:
           SSH_PORT: ${{ secrets.DEV_SSH_PORT }}
           SSH_USER: ${{ secrets.DEV_SSH_USER }}
           SSH_KEY:  ${{ secrets.DEV_SSH_KEY }}
-      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh.outputs.SERVER }} "echo 'Staging test passed'"
+      # Staging環境でも deploy.sh を実行するように修正
+      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh.outputs.SERVER }} "bash /app/na_kondo/deploy.sh staging"
 
   # Production（本番）環境へのデプロイ
   production-deploy:
@@ -28,11 +29,10 @@ jobs:
       - id: ssh-prod
         uses: invi5H/ssh-action@v1
         with:
-          # 1. 接続先を本番用（PROD_）のシークレットに書き換えます
           SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
           SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
           SSH_USER: ${{ secrets.PROD_SSH_USER }}
           SSH_KEY:  ${{ secrets.PROD_SSH_KEY }}
           
-      # 2. 接続した本番サーバーで、あなたのdeploy.shを実行します
-      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /app/na_kondo/deploy.sh na_kondo"
+      # 本番サーバーで deploy.sh を実行
+      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /app/na_kondo/deploy.sh production"
