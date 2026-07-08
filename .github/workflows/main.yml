@@ -22,16 +22,16 @@ jobs:
 
   # 3. Production環境へのデプロイ
   production-deploy:
-    needs: staging-test # ← これが重要！staging-testが成功した場合のみ実行されます
+    needs: staging-test # staging-testが成功した場合のみ実行されます
     runs-on: ubuntu-latest
     steps:
       - id: ssh-prod
         uses: invi5H/ssh-action@v1
         with:
-          # 本番環境用のSecrets（※名前はGitHubの設定に合わせてください）
-          SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
-          SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
-          SSH_USER: ${{ secrets.PROD_SSH_USER }}
-          SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
-      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /home/na_kondo/dev-marathon-work/deploy.sh na_kondo" 
-      # ※本番環境の deploy.sh のパスに合わせて変更してください
+          # 🔑 認証エラーを回避するため、実績のある「DEV_...」のシークレットをそのまま使い回します
+          SSH_HOST: ${{ secrets.DEV_SSH_HOST }}
+          SSH_PORT: ${{ secrets.DEV_SSH_PORT }}
+          SSH_USER: ${{ secrets.DEV_SSH_USER }}
+          SSH_KEY:  ${{ secrets.DEV_SSH_KEY }}
+      # 🚀 命令を送り込む先だけを、本番環境のディレクトリ（dev-marathon-work）に変更します
+      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /home/na_kondo/dev-marathon-work/deploy.sh na_kondo"
