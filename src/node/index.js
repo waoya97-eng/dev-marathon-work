@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require('cors'); // 重複しないように上に1つだけにまとめました
 const { Pool } = require("pg");
@@ -36,11 +37,11 @@ app.use(express.json());
 
 // PostgreSQLへの接続設定（hostをdbに変更済み）
 const pool = new Pool({
-  user: process.env.POSTGRES_USER || "user_5955", 
-  host: process.env.POSTGRES_HOST || "db",
-  database: process.env.POSTGRES_DB || "crm_5955", 
-  password: process.env.POSTGRES_PASSWORD || "pass_5955", 
-  port: process.env.POSTGRES_PORT || 5432,
+  user: "user_na_kondo",
+  host: "localhost",
+  database: "db_na_kondo",
+  password: "5Rw5YDaWc5jc",
+  port: 5432,
 });
 
 app.listen(port, () => {
