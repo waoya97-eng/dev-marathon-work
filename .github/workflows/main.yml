@@ -35,4 +35,4 @@ jobs:
           SSH_KEY:  ${{ secrets.PROD_SSH_KEY }}
           
       # 本番サーバーで deploy.sh を実行
-      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /app/na_kondo/deploy.sh production"
+      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /app/na_kondo/deploy.sh na_kondo"
