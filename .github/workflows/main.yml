@@ -33,7 +33,6 @@ jobs:
           SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
           SSH_USER: ${{ secrets.PROD_SSH_USER }}
           SSH_KEY:  ${{ secrets.PROD_SSH_KEY }}
-          
-      # 本番サーバーで deploy.sh を実行（修正版）
-      - run: |
-          ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "cd /app/na_kondo && bash deploy.sh na_kondo"
+
+ # 本番サーバーで deploy.sh を実行
+      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh-prod.outputs.SERVER }} "bash /app/na_kondo/deploy.sh na_kondo"
