@@ -19,7 +19,7 @@ jobs:
           SSH_USER: ${{ secrets.DEV_SSH_USER }}
           SSH_KEY:  ${{ secrets.DEV_SSH_KEY }}
       # Staging環境でも deploy.sh を実行するように修正
-      - run: ssh -o StrictHostKeyChecking=no ${{ steps.ssh.outputs.SERVER }} "bash /app/na_kondo/deploy.sh staging"
+      - run: ssh ${{ steps.ssh.outputs.SERVER }} "cd /ci/ && npx cypress install && npx cypress run --browser chrome --spec cypress/e2e/na_kondo.cy.js"
 
   # Production（本番）環境へのデプロイ
   production-deploy:
